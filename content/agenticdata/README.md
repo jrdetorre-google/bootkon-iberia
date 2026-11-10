@@ -1,7 +1,7 @@
 # Agentic Data & AI Bootkon — Iberia
 
 <p align="center">
-  <img src="https://icon.icepanel.io/GCP/svg/Google-Cloud.svg" width="88" alt="Google Cloud"/>
+  <img src="../common/img/google_cloud_logo.svg" width="260" alt="Google Cloud"/>
 </p>
 
 ¡Bienvenido a **Agentic Data & AI Bootkon — Iberia**!
