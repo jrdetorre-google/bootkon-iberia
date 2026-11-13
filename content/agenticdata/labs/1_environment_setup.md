@@ -121,7 +121,7 @@ En su primera ejecución, `agy` te preguntará cómo quieres autenticarte: elige
 {{ PROJECT_ID }}
 ```
 
-Si aparece una URL de autenticación, ábrela con **Ctrl+Clic** (o **Cmd+Clic** en Mac), inicia sesión con tu cuenta `{{ GCP_USERNAME }}` y pega el código de confirmación de vuelta en el campo de token de la terminal. Acepta los *Terms of Service* si se solicita. A partir de este momento, cada vez que ejecutes `agy` entrarás directamente al prompt interactivo — ya puedes devolver el panel de la terminal a su tamaño habitual.
+Si aparece una URL de autenticación, ábrela con **Ctrl+Clic** (o **Cmd+Clic** en Mac), inicia sesión con tu cuenta `{{ GCP_USERNAME }}` y pega el código de confirmación de vuelta en el campo de token de la terminal (si no ves dónde poner el código, es que tienes que desplazarte hacia abajo utilizando **Shift + Flecha Abajo**). A continuación, elige la opción **Pay As You Go** y selecciona **region: global**. Acepta los *Terms of Service* si se solicita. Una vez dentro, ejecuta el comando `/model` y elige el modelo **Gemini 4 Hydrogen Medium**. A partir de este momento, cada vez que ejecutes `agy` entrarás directamente al prompt interactivo — ya puedes devolver el panel de la terminal a su tamaño habitual.
 
 Los comandos cotidianos que `agy` necesita hoy (explorar ficheros, ejecutar `dataform compile`, validaciones con Python) están **pre-aprobados**, para que la generación de código fluya sin interrupciones; en cambio, cualquier comando que toque recursos reales de tu nube te pedirá confirmación antes de ejecutarse. Ese reparto es deliberado: `agy` escribe el código, tú lo revisas (con `/diff`), y las operaciones en la nube siempre están bajo tu mando.
 
