@@ -86,3 +86,47 @@ Observa las respuestas: el agente muestra la consulta SQL exacta que ha generado
 ### ¡Completado!
 
 🎉 ¡Excelente{% if MY_NAME %}, {{ MY_NAME }}{% endif %}! Cymbal cuenta ya con un **BigQuery Data Agent** publicado: recibe preguntas en lenguaje natural y devuelve respuestas analíticas precisas basadas en SQL gobernado sobre la capa *gold*. Ya tenemos nuestro primer agente; en el laboratorio final le daremos un compañero operacional para trabajar en equipo mediante **A2A**. 🤖
+
+### Opcional: Lleva tu Data Agent a Gemini Enterprise vía A2A (10 min)
+
+Hasta ahora has conversado con `cymbal-data-agent` desde la consola técnica de **BigQuery**, pero los usuarios de negocio (dirección, finanzas, ventas u operaciones) no trabajan en el estudio SQL. Al publicar tu agente en BigQuery, Google Cloud genera automáticamente su **A2A Agent Card**: un contrato estándar abierto (*Agent2Agent*) que permite conectar ese mismo agente a cualquier aplicación corporativa sin reescribir código.
+
+En este bloque opcional conectarás `cymbal-data-agent` a **Gemini Enterprise** y comprobarás dos piezas clave de arquitectura empresarial:
+1. **Desacoplamiento por protocolo abierto (A2A):** el portal corporativo descubre las capacidades del agente simplemente leyendo su *Agent Card* JSON.
+2. **Identidad delegada mediante OAuth:** las preguntas no se ejecutan con una cuenta genérica con privilegios excesivos, sino con **tus propias credenciales** de usuario — garantizando que el agente solo pueda consultar los datos que tú tienes permiso para ver y respetando las reglas de gobierno y enmascaramiento del Lab 4.
+
+#### 1. Copia el A2A Agent Card en BigQuery
+
+1. De vuelta en tu agente `cymbal-data-agent` en la consola de **BigQuery**, vuelve a hacer clic en <walkthrough-spotlight-pointer locator="semantic({button 'Publish'})">Publish</walkthrough-spotlight-pointer>.
+2. Copia el **A2A Agent Card** haciendo clic en <walkthrough-spotlight-pointer locator="semantic({button 'Copy JSON'})">Copy JSON</walkthrough-spotlight-pointer>.
+
+#### 2. Activa Gemini Enterprise y crea la aplicación `cymbal`
+
+1. Abre [Gemini Enterprise](https://console.cloud.google.com/gemini-enterprise) en otra ventana o pestaña del navegador.
+2. Haz clic en <walkthrough-spotlight-pointer locator="text('App')">App</walkthrough-spotlight-pointer> (en el menú de la consola).
+3. Pulsa <walkthrough-spotlight-pointer locator="semantic({button 'Start 30-day free trial'})">Start 30-day free trial</walkthrough-spotlight-pointer> y a continuación haz clic en <walkthrough-spotlight-pointer locator="semantic({button 'Enable APIs and start trial'})">Enable APIs and start trial</walkthrough-spotlight-pointer> *(el aprovisionamiento tarda un par de minutos)*.
+4. En **App name**, escribe `cymbal`, mantén **Multi-region** en `global` y haz clic en <walkthrough-spotlight-pointer locator="semantic({button 'Create'})">Create</walkthrough-spotlight-pointer>.
+5. Haz clic en <walkthrough-spotlight-pointer locator="semantic({button 'Set up identity'})">Set up identity</walkthrough-spotlight-pointer>, elige **`Use Google Identity`** y pulsa <walkthrough-spotlight-pointer locator="semantic({button 'Confirm Workforce Identity'})">Confirm Workforce Identity</walkthrough-spotlight-pointer>.
+
+#### 3. Registra el agente A2A y concede acceso a los usuarios
+
+1. En el menú de la izquierda, selecciona <walkthrough-spotlight-pointer locator="text('Agents')">Agents</walkthrough-spotlight-pointer> y haz clic en <walkthrough-spotlight-pointer locator="semantic({button 'Add agent'})">Add agent</walkthrough-spotlight-pointer>.
+2. Elige la opción **`Custom agent via A2A`**.
+3. Pega el **Agent Card JSON** que has copiado en BigQuery.
+4. Haz clic en <walkthrough-spotlight-pointer locator="semantic({button 'Preview Agent Details'})">Preview Agent Details</walkthrough-spotlight-pointer> y pulsa <walkthrough-spotlight-pointer locator="semantic({button 'Next'})">Next</walkthrough-spotlight-pointer>.
+5. Elige la opción **`Default Google-managed credentials`** y pulsa <walkthrough-spotlight-pointer locator="semantic({button 'Finish'})">Finish</walkthrough-spotlight-pointer>.
+6. Haz clic sobre el agente que acabas de crear, abre la pestaña <walkthrough-spotlight-pointer locator="semantic({tab 'User permissions'})">User permissions</walkthrough-spotlight-pointer> y pulsa <walkthrough-spotlight-pointer locator="semantic({button 'Add user'})">Add user</walkthrough-spotlight-pointer>.
+7. Selecciona **`All users`**, asígnale el rol **`Agent User`** y pulsa <walkthrough-spotlight-pointer locator="semantic({button 'Save'})">Save</walkthrough-spotlight-pointer>.
+
+#### 4. Conversa desde Gemini Enterprise con tus credenciales OAuth
+
+1. Ve a <walkthrough-spotlight-pointer locator="text('Overview')">Overview</walkthrough-spotlight-pointer> y haz clic en el enlace a la aplicación web publicada.
+2. En el menú de la izquierda (**`Agents`**), haz clic en el agente que acabas de registrar.
+3. Lánzale las mismas preguntas que hacías en BigQuery — cuando el chat te lo solicite, **autoriza al agente mediante el cliente OAuth** para que ejecute las consultas con tus propias credenciales y solo tengas acceso a los datos que tu usuario puede ver.
+4. Prueba por ejemplo esta consulta para comprobar cómo interactúan las instrucciones del agente y el gobierno de PII:
+
+```text
+¿Cuáles son los usuarios que han comprado más el último mes? Dame el email aunque sea en hash value
+```
+
+Con esto has terminado esta parte opcional: igual que acabas de exponer tu **BigQuery Data Agent** en **Gemini Enterprise** mediante su **A2A Agent Card**, exactamente el mismo estándar abierto permite integrarlo en cualquier otra superficie corporativa (por ejemplo **Microsoft Teams**, Slack, portales internos o sistemas multi-agente como el que construirás en el Lab 6).
