@@ -103,3 +103,57 @@ Un detalle más: recuerda que tu simulador (en la pestaña 2 de la terminal) sig
 ### ¡Completado!
 
 🎉 ¡Bravo{% if MY_NAME %}, {{ MY_NAME }}{% endif %}! Has dirigido a un agente de IA para que escriba, compile y valide un pipeline Medallion completo en **Dataform** — y tú lo has revisado, ejecutado y verificado en **BigQuery** con *assertions* incluidas. Los duplicados han desaparecido, los estados corruptos se han corregido y las líneas huérfanas han sido filtradas. Tu capa *gold* ya brilla; en el siguiente laboratorio vamos a gobernarla y protegerla. 🥇
+
+### Opcional: Managed Dataform
+
+El Lab 3 acaba de mencionar una premisa importante: *"En producción puedes ejecutar exactamente el mismo proyecto de forma planificada en Managed Dataform dentro de Google Cloud"*. En este módulo opcional llevarás ese paso a la práctica: subirás el proyecto exacto que escribió `agy` — sin reescribir ni una línea, los mismos archivos SQLX — a un **repositorio gestionado de Dataform**, explorarás su grafo interactivo de dependencias (DAG) y configurarás una ejecución automatizada bajo una *service account* dedicada. Al salir de este bloque, tu arquitectura Medallion se refrescará por sí sola.
+
+Antes de empezar: este bloque opcional asume que has completado los **Labs 1 a 3** (el proyecto de Dataform en `content/agenticdata/src/dataform` compila y se ha ejecutado al menos una vez) y que el **simulador de datos (pestaña 2 de la terminal)** del Lab 2 sigue en ejecución.
+
+#### Acerca de Managed Dataform
+
+**Managed Dataform** es el plano gestionado en la nube de la herramienta que acabas de utilizar en el Lab 3 — mismo motor de Dataform, mismo código SQLX y mismo `workflow_settings.yaml`, pero operado íntegramente por Google Cloud:
+- Un **repository** es un repositorio Git alojado por Google (o conectado a GitHub/GitLab).
+- Los **development workspaces** son ramas de edición individuales con compilación en vivo en el navegador.
+- Una **release configuration** compila el código de una rama Git produciendo un **compilation result** inmutable.
+- Y una **workflow configuration** ejecuta esos resultados de compilación según un calendario cron utilizando una *service account* sin depender del portátil ni de la sesión de ningún desarrollador.
+
+Para saber más:
+- [Create a Dataform repository](https://docs.cloud.google.com/dataform/docs/create-repository)
+- [Release configurations](https://docs.cloud.google.com/dataform/docs/release-configurations)
+- [Workflow configurations](https://docs.cloud.google.com/dataform/docs/workflow-configurations)
+- [The Dataform REST API](https://docs.cloud.google.com/dataform/reference/rest)
+
+#### Configura la identidad de ejecución (Execution Identity)
+
+¿Quién ejecuta el pipeline a las 3 de la madrugada? No un usuario humano, sino una identidad de servicio. En las ejecuciones planificadas de Dataform intervienen dos identidades: el **Dataform service agent** gestionado por Google (que compila el código y orquesta las ejecuciones) y una **custom service account** con la que se lanzan los trabajos sobre **BigQuery**. Ya dispones de una candidata ideal en tu proyecto: `dataquality-service-account`, pre-aprovisionada para los escaneos del Lab 4 con permisos de lectura en BigQuery; solo necesitamos darle permisos de escritura y autorizar la suplantación (*impersonation*).
+
+Habilita primero la API de Dataform y materializa su *service agent*:
+
+```bash
+gcloud services enable dataform.googleapis.com
+gcloud beta services identity create --service=dataform.googleapis.com --project={{ PROJECT_ID }}
+```
+
+Asígnate el rol de administrador de Dataform:
+
+```bash
+gcloud projects add-iam-policy-binding {{ PROJECT_ID }} \
+    --member=user:{{ GCP_USERNAME }} --role=roles/dataform.admin --condition=None
+```
+
+Amplía los permisos de `dataquality-service-account` a editor de datos de BigQuery para que pueda reconstruir las capas *silver* y *gold*:
+
+```bash
+gcloud projects add-iam-policy-binding {{ PROJECT_ID }} \
+    --member=serviceAccount:dataquality-service-account@{{ PROJECT_ID }}.iam.gserviceaccount.com \
+    --role=roles/bigquery.dataEditor --condition=None
+```
+
+Por último, autoriza al *service agent* de Dataform a actuar como esa cuenta de servicio:
+
+```bash
+for role in roles/iam.serviceAccountTokenCreator roles/iam.serviceAccountUser; do gcloud iam service-accounts add-iam-policy-binding dataquality-service-account@{{ PROJECT_ID }}.iam.gserviceaccount.com --member=serviceAccount:service-{{ PROJECT_NUMBER }}@gcp-sa-dataform.iam.gserviceaccount.com --role=$role; done
+```
+
+Esta cadena de delegación (*service agent → token efímero → service account de ejecución → job de BigQuery*) permite que el pipeline se ejecute en producción sin utilizar credenciales personales ([Control access with IAM](https://docs.cloud.google.com/dataform/docs/access-control)).
