@@ -95,9 +95,31 @@ Fíjate en la implicación de seguridad: incluso siendo propietario/administrado
 
 ❗ *Nota*: Si más adelante vuelves a ejecutar `dataform run --tags silver`, Dataform recreará la tabla `stg_customers` desde cero y eliminará la etiqueta asignada manualmente desde la consola; si quieres conservarla tras re-ejecutar Dataform, basta con volver a asociarla en *Edit schema* (o declararla directamente en el bloque `config` del fichero `.sqlx`).
 
-### Reto opcional: demuestra que la capa Silver pasa el control de calidad al 100%
+### Reto opcional 1: enmascara el email con Dynamic Data Masking (Hash SHA-256)
 
-**\[RETO\]** Si dispones de 5 minutos extra:
+En lugar de aplicar un bloqueo total (*todo o nada* con *Access Denied*), **Dynamic Data Masking** sobre *Policy Tags* permite definir una **Data Policy** que transforma al vuelo el contenido de la columna sensible en tiempo de lectura según el usuario que consulta. Con la regla **`Hash (SHA256)`**, **BigQuery** devuelve un resumen criptográfico irreversible y determinista del `email`: así los analistas y procesos pueden cruzar tablas (`JOIN`), agrupar o contar clientes únicos (`COUNT(DISTINCT email)`) sin exponer nunca la dirección de correo real.
+
+**\[RETO 1\]** Configura el enmascaramiento sobre `pii`:
+
+1. Haz clic en [Policy Tags](https://console.cloud.google.com/bigquery/security/secure/policy-tags) y selecciona la taxonomía que acabas de crear: <walkthrough-spotlight-pointer locator="text('cymbal-{{ PROJECT_ID }}')">cymbal-{{ PROJECT_ID }}</walkthrough-spotlight-pointer>.
+2. Marca la casilla situada a la izquierda de la *policy tag* <walkthrough-spotlight-pointer locator="text('pii')">pii</walkthrough-spotlight-pointer> y haz clic en <walkthrough-spotlight-pointer locator="semantic({button 'Manage Data Policies'})">Manage Data Policies</walkthrough-spotlight-pointer>.
+3. Haz clic en <walkthrough-spotlight-pointer locator="semantic({button 'Add Rule'})">Add Rule</walkthrough-spotlight-pointer>.
+4. Configura la regla con estos valores y pulsa <walkthrough-spotlight-pointer locator="semantic({button 'Submit'})">Submit</walkthrough-spotlight-pointer>:
+    - **Data Policy Name**: `email_hash`
+    - **Masking Rule**: `Hash (SHA256)`
+    - **Principals**: `{{ GCP_USERNAME }}`
+
+Vuelve a ejecutar la consulta en **BigQuery**:
+
+```sql
+SELECT email FROM `{{ PROJECT_ID }}.cymbal_silver.stg_customers` LIMIT 5
+```
+
+Comprueba el resultado: en lugar de bloquear la consulta, ahora verás los correos transformados en su **hash SHA-256**. *(Si todavía te indica que no tienes acceso, espera unos segundos a que se propaguen los permisos y vuelve a ejecutar la consulta).*
+
+### Reto opcional 2: demuestra que la capa Silver pasa el control de calidad al 100%
+
+**\[RETO 2\]** Si dispones de 5 minutos extra:
 
 1. Crea un segundo escaneo apuntando a `cymbal_silver.stg_orders` reutilizando el mismo fichero `orders_quality.yaml` y llamándolo `silverorders` (solo cambian el nombre del scan y el parámetro `--data-source-resource`). Ejecútalo y compara la puntuación del 100% en la pestaña *Data quality* de `stg_orders` frente al fallo en `cymbal_orders`.
 2. Comenta con tu mesa: si `silver` pasa siempre al 100%, ¿por qué sigue siendo buena práctica mantener un escaneo de calidad sobre `bronze` en producción?
