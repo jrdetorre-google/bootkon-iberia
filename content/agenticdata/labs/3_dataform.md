@@ -198,7 +198,7 @@ Haz clic sobre `fct_daily_revenue`: el panel lateral te mostrará sus dependenci
 
 Desde el propio workspace `cymbal-dev` puedes ejecutar todo el pipeline de forma visual sin necesidad de usar la terminal:
 
-1. Haz clic en <walkthrough-spotlight-pointer locator="semantic({button 'Start execution'})">Start execution</walkthrough-spotlight-pointer> → **All actions** (si te pide seleccionar identidad de ejecución, elige `dataquality-service-account@{{ PROJECT_ID }}.iam.gserviceaccount.com` o déjalo con tu usuario).
+1. Haz clic en <walkthrough-spotlight-pointer locator="semantic({button 'Start execution'})">Start execution</walkthrough-spotlight-pointer> → **Execute actions** → **All actions** (si te pide seleccionar identidad de ejecución, elige `dataquality-service-account@{{ PROJECT_ID }}.iam.gserviceaccount.com` o déjalo con tu usuario).
 2. Abre la pestaña <walkthrough-spotlight-pointer locator="semantic({tab 'Workflow execution logs'})">Workflow execution logs</walkthrough-spotlight-pointer> (en la página del repositorio `cymbal-dataform`): verás el estado en tiempo real de cada tabla y de cada *assertion* hasta pasar a **Succeeded**.
 3. En [BigQuery](https://console.cloud.google.com/bigquery), abre `cymbal_gold` → `fct_daily_revenue` y pulsa la pestaña <walkthrough-spotlight-pointer locator="semantic({tab 'Lineage'})">Lineage</walkthrough-spotlight-pointer> para visualizar el linaje completo de extremo a extremo desde `cymbal_bronze` hasta `cymbal_gold`.
 
