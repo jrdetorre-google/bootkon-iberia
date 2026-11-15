@@ -201,3 +201,59 @@ Desde el propio workspace `cymbal-dev` puedes ejecutar todo el pipeline de forma
 1. Haz clic en <walkthrough-spotlight-pointer locator="semantic({button 'Start execution'})">Start execution</walkthrough-spotlight-pointer> → **All actions** (si te pide seleccionar identidad de ejecución, elige `dataquality-service-account@{{ PROJECT_ID }}.iam.gserviceaccount.com` o déjalo con tu usuario).
 2. Abre la pestaña <walkthrough-spotlight-pointer locator="semantic({tab 'Workflow execution logs'})">Workflow execution logs</walkthrough-spotlight-pointer> (en la página del repositorio `cymbal-dataform`): verás el estado en tiempo real de cada tabla y de cada *assertion* hasta pasar a **Succeeded**.
 3. En [BigQuery](https://console.cloud.google.com/bigquery), abre `cymbal_gold` → `fct_daily_revenue` y pulsa la pestaña <walkthrough-spotlight-pointer locator="semantic({tab 'Lineage'})">Lineage</walkthrough-spotlight-pointer> para visualizar el linaje completo de extremo a extremo desde `cymbal_bronze` hasta `cymbal_gold`.
+
+#### Compila una Release Configuration
+
+Un workspace es para desarrollo interactivo; las ejecuciones productivas se alimentan desde la rama `main` de Git mediante una **Release Configuration**. En la página del repositorio `cymbal-dataform`, abre la pestaña <walkthrough-spotlight-pointer locator="semantic({tab 'Releases & scheduling'})">Releases & scheduling</walkthrough-spotlight-pointer> y, bajo <walkthrough-spotlight-pointer locator="text('Release configurations')">Release configurations</walkthrough-spotlight-pointer>, haz clic en **Create**:
+
+1. **Release ID**: `cymbal-release`
+2. **Git commitish**: `main`
+3. Deja vacíos la frecuencia y los *compilation overrides* (tu `workflow_settings.yaml` ya define el proyecto y los datasets).
+
+Créala, entra en <walkthrough-spotlight-pointer locator="text('cymbal-release')">cymbal-release</walkthrough-spotlight-pointer> y pulsa <walkthrough-spotlight-pointer locator="semantic({button 'New compilation'})">New compilation</walkthrough-spotlight-pointer>. En pocos segundos aparecerá un **compilation result** en la tabla inferior: una instantánea inmutable de tu código SQL listo para ejecutarse una y otra vez sobre los nuevos datos que vayan llegando a *bronze*.
+
+#### Configura la ejecución programada diaria (Workflow Configuration)
+
+Vuelve a la pestaña *Releases & scheduling* y, bajo <walkthrough-spotlight-pointer locator="text('Workflow configurations')">Workflow configurations</walkthrough-spotlight-pointer>, haz clic en **Create**:
+
+1. **Configuration ID**: `cymbal-daily`
+2. **Release configuration**: `cymbal-release`
+3. **Authentication**: elige **Execute with selected service account** y selecciona `dataquality-service-account`.
+4. **Schedule frequency**: `0 6 * * *` (una vez al día a las 06:00 UTC; selecciona zona horaria **UTC**).
+5. En **Workflow actions**, selecciona **Selection of tags** y marca `silver` y `gold` (incluyendo sus *assertions*).
+6. Haz clic en **Create**.
+
+*(Dejar la planificación una vez al día a las 06:00 UTC evita además que reconstrucciones automáticas durante el taller borren los Policy Tags de PII que configurarás en el Lab 4).*
+
+#### Dispara la primera ejecución planificada por API
+
+Dispara inmediatamente una ejecución del workflow realizando la misma llamada a la API REST que ejecutará el scheduler cada día a las 06:00 UTC (también puedes hacerlo desde la consola entrando en `cymbal-daily` y pulsando **Start execution**):
+
+```bash
+curl -s -X POST \
+    -H "Authorization: Bearer $(gcloud auth print-access-token)" \
+    -H "Content-Type: application/json" \
+    -d '{"workflowConfig": "projects/{{ PROJECT_ID }}/locations/{{ REGION }}/repositories/cymbal-dataform/workflowConfigs/cymbal-daily"}' \
+    https://dataform.googleapis.com/v1/projects/{{ PROJECT_ID }}/locations/{{ REGION }}/repositories/cymbal-dataform/workflowInvocations
+```
+
+Recibirás como respuesta un objeto **workflowInvocation** en estado `RUNNING`.
+
+❗ Si devolviera `PERMISSION_DENIED` mencionando la *service account* o el *service agent* de Dataform, espera un par de minutos a que termine de propagarse el binding de IAM del inicio de este bloque y vuelve a lanzar el `curl`.
+
+#### Observa cómo se actualiza la capa Gold automáticamente
+
+En la página del repositorio en la consola, abre la pestaña <walkthrough-spotlight-pointer locator="semantic({tab 'Workflow execution logs'})">Workflow execution logs</walkthrough-spotlight-pointer>. Verás tu ejecución en estado **Running** y, tras un minuto, en **Succeeded**. Al hacer clic en ella podrás inspeccionar el estado y tiempo de ejecución de cada tabla y cada *assertion*.
+
+Si abres [BigQuery](https://console.cloud.google.com/bigquery) y ejecutas esta consulta en el editor:
+
+```sql
+SELECT order_date, currency, orders, gross_revenue
+FROM `{{ PROJECT_ID }}.cymbal_gold.fct_daily_revenue`
+ORDER BY order_date DESC, currency
+LIMIT 8
+```
+
+Comprobarás que las filas del día de hoy reflejan ya los nuevos pedidos generados por el simulador e ingeridos por **Datastream**, procesados íntegramente por `dataquality-service-account` desde **Managed Dataform**.
+
+🎉 ¡Magnífico{% if MY_NAME %}, {{ MY_NAME }}{% endif %}! Tu arquitectura Medallion ya no depende de tu terminal: el código generado por `agy` vive en un repositorio gestionado, se compila desde `main` y queda programado automáticamente todos los días a las 06:00 UTC bajo una cuenta de servicio dedicada. ⏰
