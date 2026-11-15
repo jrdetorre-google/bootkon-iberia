@@ -185,3 +185,19 @@ content/agenticdata/src/optional/managed_dataform/push_to_dataform.sh
 *(Por defecto apunta a `cymbal-dataform` / `cymbal-dev`; si usaste otros nombres puedes pasarlos como argumentos).*
 
 Verás una línea `writeFile` por cada archivo del proyecto, seguida de un `commit` y un `push` a la rama `main`. Puedes abrir <walkthrough-editor-open-file filePath="content/agenticdata/src/optional/managed_dataform/push_to_dataform.sh">push_to_dataform.sh</walkthrough-editor-open-file> para ver las seis llamadas REST que realiza (`GET`, `:makeDirectory`, `:writeFile`, `:commit`, `:push` e `:installNpmPackages`) autenticándose con `gcloud auth print-access-token` y omitiendo deliberadamente `.df-credentials.json`. Refresca ahora la pestaña de `cymbal-dev` en la consola y verás allí `workflow_settings.yaml` y todos los modelos SQLX de `definitions/`.
+
+#### Explora el grafo compilado (Compiled Graph)
+
+El workspace compila tu proyecto automáticamente. Haz clic en la pestaña <walkthrough-spotlight-pointer locator="semantic({tab 'Compiled graph'})">Compiled graph</walkthrough-spotlight-pointer>: verás tu arquitectura Medallion representada como un DAG interactivo — las seis fuentes de *bronze* a la izquierda, los cinco modelos de *silver*, los tres *data marts* de *gold* y todas las *assertions* que creó `agy`.
+
+❗ Si apareciera un aviso de compilación mencionando `Failed to resolve workflow_settings.yaml` o paquetes pendientes, abre `workflow_settings.yaml` dentro del workspace, pulsa **Install packages** y vuelve a abrir el grafo.
+
+Haz clic sobre `fct_daily_revenue`: el panel lateral te mostrará sus dependencias, los objetos dependientes y el SQL compilado con todas las referencias `${ref(...)}` resueltas a nombres físicos de tablas en BigQuery.
+
+#### Lanza una ejecución manual y revisa el linaje en la consola
+
+Desde el propio workspace `cymbal-dev` puedes ejecutar todo el pipeline de forma visual sin necesidad de usar la terminal:
+
+1. Haz clic en <walkthrough-spotlight-pointer locator="semantic({button 'Start execution'})">Start execution</walkthrough-spotlight-pointer> → **All actions** (si te pide seleccionar identidad de ejecución, elige `dataquality-service-account@{{ PROJECT_ID }}.iam.gserviceaccount.com` o déjalo con tu usuario).
+2. Abre la pestaña <walkthrough-spotlight-pointer locator="semantic({tab 'Workflow execution logs'})">Workflow execution logs</walkthrough-spotlight-pointer> (en la página del repositorio `cymbal-dataform`): verás el estado en tiempo real de cada tabla y de cada *assertion* hasta pasar a **Succeeded**.
+3. En [BigQuery](https://console.cloud.google.com/bigquery), abre `cymbal_gold` → `fct_daily_revenue` y pulsa la pestaña <walkthrough-spotlight-pointer locator="semantic({tab 'Lineage'})">Lineage</walkthrough-spotlight-pointer> para visualizar el linaje completo de extremo a extremo desde `cymbal_bronze` hasta `cymbal_gold`.
