@@ -59,3 +59,4 @@ source table except reviews, fixing the problems above:
 - After changing files, run `dataform compile` and fix errors until the
   project compiles cleanly.
 - Do not modify `workflow_settings.yaml` or `definitions/sources.js`.
+- Create a description for all the tables and fields, so that they will be usefull for human and agentic reading, stating, not only a description of the contents, but also, what analysis is that table or field useful for.
