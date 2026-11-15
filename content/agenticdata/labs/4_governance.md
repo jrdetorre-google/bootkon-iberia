@@ -30,8 +30,6 @@ Which tables contain revenue by day?
 
 Verás aparecer `fct_daily_revenue` en los resultados (si prefieres buscar por palabra clave, `revenue` también la localiza al instante). El catálogo la ha indexado automáticamente desde **BigQuery**, sin necesidad de configurar *crawlers* ni procesos manuales de registro.
 
-Comprueba ahora qué metadatos conoce el catálogo sobre ella. En [BigQuery](https://console.cloud.google.com/bigquery), abre `cymbal_gold` → `fct_daily_revenue` → <walkthrough-spotlight-pointer locator="semantic({tab 'Details'})">Details</walkthrough-spotlight-pointer>. Si `agy` incluyó el campo `description` en la cabecera SQLX del modelo de Dataform, aparecerá aquí publicado: la documentación escrita como código (*documentation-as-code*) viaja directamente hasta el catálogo corporativo.
-
 ### Audita la calidad de la capa Bronze con Auto Data Quality
 
 En el Lab 3 tus *assertions* validaron lo que **Dataform** construía en tiempo de compilación/ejecución. Un **Data Quality Scan** de **Knowledge Catalog**, en cambio, audita una tabla de forma independiente a cualquier pipeline — bajo demanda o de manera programada — y publica la puntuación oficial de calidad directamente en la ficha de la tabla en el catálogo. Vamos a lanzar un escaneo sobre `cymbal_bronze.cymbal_orders`, donde sabemos que residen los errores del sistema origen.
