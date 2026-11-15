@@ -49,7 +49,7 @@ Rules:
 
 1. Abre la [consola de BigQuery](https://console.cloud.google.com/bigquery).
 2. En el panel izquierdo, despliega tu proyecto <walkthrough-spotlight-pointer locator="semantic({treeitem 'Toggle node {{ PROJECT_ID }}'} {button 'Toggle node'})">{{ PROJECT_ID }}</walkthrough-spotlight-pointer> y haz clic en <walkthrough-spotlight-pointer locator="text('Agents')">Agents</walkthrough-spotlight-pointer>.
-3. Haz clic en <walkthrough-spotlight-pointer locator="semantic({button 'Create agent'})">Create agent</walkthrough-spotlight-pointer>.
+3. Haz clic en <walkthrough-spotlight-pointer locator="text('Agent catalog')">Agent catalog</walkthrough-spotlight-pointer> y en <walkthrough-spotlight-pointer locator="semantic({button 'Create agent'})">Create agent</walkthrough-spotlight-pointer>.
 4. Asígnale exactamente el nombre **`cymbal-data-agent`** — es fundamental respetar este nombre porque el código del Lab 6 lo invoca por ese identificador — y añade una descripción como *"Analytics over Cymbal's gold layer"*.
 5. Haz clic en **Add Source** y selecciona las tres tablas del dataset `cymbal_gold`: ``fct_daily_revenue``, ``dim_customer_360`` y ``fct_product_performance``.
 6. Selecciona la región **GLOBAL** (o ``global``) — la *Conversational Analytics API* que utilizaremos en el Lab 6 enruta las peticiones a `locations/global`.
