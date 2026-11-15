@@ -157,3 +157,31 @@ for role in roles/iam.serviceAccountTokenCreator roles/iam.serviceAccountUser; d
 ```
 
 Esta cadena de delegación (*service agent → token efímero → service account de ejecución → job de BigQuery*) permite que el pipeline se ejecute en producción sin utilizar credenciales personales ([Control access with IAM](https://docs.cloud.google.com/dataform/docs/access-control)).
+
+#### Crea el repositorio en Dataform
+
+Abre [Dataform](https://console.cloud.google.com/bigquery/dataform) en la consola (dentro de BigQuery) y haz clic en <walkthrough-spotlight-pointer locator="semantic({button 'Create repository'})">Create repository</walkthrough-spotlight-pointer>:
+
+1. **Repository ID**: `cymbal-dataform`
+2. **Region**: `{{ REGION }}`
+3. **Service account**: selecciona `dataquality-service-account@{{ PROJECT_ID }}.iam.gserviceaccount.com`.
+4. Deja el resto de opciones por defecto y pulsa **Create**.
+
+#### Crea un espacio de trabajo de desarrollo (Development Workspace)
+
+Abre <walkthrough-spotlight-pointer locator="text('cymbal-dataform')">cymbal-dataform</walkthrough-spotlight-pointer> y haz clic en <walkthrough-spotlight-pointer locator="semantic({button 'Create development workspace'})">Create development workspace</walkthrough-spotlight-pointer>. Asigna como **Workspace ID** `cymbal-dev` y pulsa **Create**.
+
+Entra en el workspace recién creado: verás que está vacío y ofrece un botón para inicializarlo con código de plantilla. **No pulses *Initialize workspace***: tu proyecto ya existe (lo escribió `agy` en el Lab 3) y vamos a subirlo directamente a través de la API.
+
+#### Sube el proyecto mediante la REST API de Dataform
+
+Managed Dataform expone toda su gestión de repositorios y ficheros a través de su **REST API**, que es como los sistemas de CI/CD sincronizan código. El repositorio del Bootkon incluye un script listo para subir tu proyecto del Lab 3 al workspace `cymbal-dev`; ejecútalo desde tu terminal:
+
+```bash
+cd ~/bootkon
+content/agenticdata/src/optional/managed_dataform/push_to_dataform.sh
+```
+
+*(Por defecto apunta a `cymbal-dataform` / `cymbal-dev`; si usaste otros nombres puedes pasarlos como argumentos).*
+
+Verás una línea `writeFile` por cada archivo del proyecto, seguida de un `commit` y un `push` a la rama `main`. Puedes abrir <walkthrough-editor-open-file filePath="content/agenticdata/src/optional/managed_dataform/push_to_dataform.sh">push_to_dataform.sh</walkthrough-editor-open-file> para ver las seis llamadas REST que realiza (`GET`, `:makeDirectory`, `:writeFile`, `:commit`, `:push` e `:installNpmPackages`) autenticándose con `gcloud auth print-access-token` y omitiendo deliberadamente `.df-credentials.json`. Refresca ahora la pestaña de `cymbal-dev` en la consola y verás allí `workflow_settings.yaml` y todos los modelos SQLX de `definitions/`.
