@@ -66,7 +66,7 @@ GROUP BY order_date, currency
 ORDER BY order_date DESC
 ```
 
-asociándola a la pregunta en lenguaje natural: ``What was our revenue by day?``
+asociándola a la pregunta en lenguaje natural: ``What was our revenue by currency and day?``
 
 ### Publica el agente y conversa con tus datos
 
