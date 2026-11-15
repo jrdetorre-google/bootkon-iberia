@@ -203,7 +203,7 @@ Desde el propio workspace `cymbal-dev` puedes ejecutar todo el pipeline de forma
 
 #### Compila una Release Configuration
 
-Un workspace es para desarrollo interactivo; las ejecuciones productivas se alimentan desde la rama `main` de Git mediante una **Release Configuration**. En la página del repositorio `cymbal-dataform`, abre la pestaña <walkthrough-spotlight-pointer locator="semantic({tab 'Releases & scheduling'})">Releases & scheduling</walkthrough-spotlight-pointer> y, bajo <walkthrough-spotlight-pointer locator="text('Release configurations')">Release configurations</walkthrough-spotlight-pointer>, haz clic en **Create**:
+Un workspace es para desarrollo interactivo; las ejecuciones productivas se alimentan desde la rama `main` de Git mediante una **Release Configuration**. En la página del repositorio `cymbal-dataform`, abre la pestaña <walkthrough-spotlight-pointer locator="semantic({tab 'Releases & scheduling'})">Releases & scheduling</walkthrough-spotlight-pointer> y haz clic en <walkthrough-spotlight-pointer locator="semantic({button 'Create production release'})">Create production release</walkthrough-spotlight-pointer>:
 
 1. **Release ID**: `cymbal-release`
 2. **Git commitish**: `main`
