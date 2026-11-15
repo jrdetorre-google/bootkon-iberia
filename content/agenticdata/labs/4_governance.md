@@ -74,10 +74,10 @@ El trabajo tarda entre dos y tres minutos en completarse. Pasado ese tiempo, ve 
 La columna `stg_customers.email` contiene información personal identificable (*PII*). Vamos a protegerla aplicando seguridad a nivel de columna (*Column-Level Security*) mediante una **Policy Tag**:
 
 1. Abre [BigQuery policy tags](https://console.cloud.google.com/bigquery/policy-tags) y haz clic en <walkthrough-spotlight-pointer locator="text('Create taxonomy')">Create Taxonomy</walkthrough-spotlight-pointer>:
-    - **Taxonomy name**: `cymbal`, **Location**: `us`
+    - **Taxonomy name**: `cymbal-{{ PROJECT_ID }}`, **Location**: `us`
     - **Policy tag**: `pii`, **Description**: `Personal data — restricted`
 2. Pulsa **Create** y, una vez creada la taxonomía, activa el interruptor **`Enforce access control`**.
-3. Ve a [BigQuery](https://console.cloud.google.com/bigquery), abre `cymbal_silver` → `stg_customers` → haz clic en <walkthrough-spotlight-pointer locator="semantic({button 'Edit schema'})">Edit schema</walkthrough-spotlight-pointer>, selecciona la casilla de la columna `email`, pulsa **Add policy tag**, elige `cymbal > pii` y pulsa **Save**.
+3. Ve a [BigQuery](https://console.cloud.google.com/bigquery), abre `cymbal_silver` → `stg_customers` → haz clic en <walkthrough-spotlight-pointer locator="semantic({button 'Edit schema'})">Edit schema</walkthrough-spotlight-pointer>, selecciona la casilla de la columna `email`, pulsa **Add policy tag**, elige `cymbal-{{ PROJECT_ID }} > pii` y pulsa **Save**.
 
 Ahora comprobemos que el bloqueo es efectivo. Ejecuta esta consulta en el editor de BigQuery — **debe fallar** con un error de acceso denegado (*Access Denied*) sobre la columna `email`:
 
